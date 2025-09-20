@@ -38,8 +38,8 @@ if (cluster.isMaster) {
     });
 
     // ✅ Global middlewares
+    app.use(corsConfig);         // CORS policy
     app.use(helmet());             // Security headers
-    app.use(corsConfig);           // CORS policy
     app.use(limiter);              // Rate limiting
     app.use(express.json());       // Parse JSON
     app.use(morgan("combined"));   // Request logging
