@@ -1,4 +1,5 @@
 const EmailService = require("../services/emailService");
+const axios = require("axios");
 
 // Get all emails
 const getEmails = async (req, res, next) => {
