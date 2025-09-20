@@ -12,7 +12,7 @@ const mailRoutes = require("./src/routes/mailRoutes");
 const errorHandler = require("./src/utils/errorHandler");
 
 const app = express();
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4005;
 
 if (cluster.isMaster) {
     // 🌟 Master process (manages workers)
