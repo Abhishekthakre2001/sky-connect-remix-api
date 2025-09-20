@@ -9,6 +9,7 @@ const mailtemplateRoutes = require("./src/routes/mailtemplateRoutes");
 const pricingRoutes = require("./src/routes/pricingRoutes");
 const mailRoutes = require("./src/routes/mailRoutes");
 const errorHandler = require("./src/utils/errorHandler");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 4005;
@@ -34,26 +35,28 @@ if (cluster.isMaster) {
     // ✅ Global middlewares
 
     // --- CORS ---
-    app.use((req, res, next) => {
-        const allowedOrigins = [
-            "https://skyconnectshopify.skyvisionitsolutions.online",
-            "http://localhost:3000"
-        ];
-        const origin = req.headers.origin;
-        if (allowedOrigins.includes(origin)) {
-            res.setHeader("Access-Control-Allow-Origin", origin);
-        }
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        res.setHeader("Access-Control-Allow-Credentials", "true");
+    const allowedOrigins = [
+        "https://skyconnectshopify.skyvisionitsolutions.online",
+        "http://localhost:3000"
+    ];
 
-        // Handle preflight OPTIONS request
-        if (req.method === "OPTIONS") {
-            return res.sendStatus(204);
-        }
+    app.use(cors({
+        origin: function (origin, callback) {
+            // allow requests with no origin like Postman
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.indexOf(origin) === -1) {
+                const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+                return callback(new Error(msg), false);
+            }
+            return callback(null, true);
+        },
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true
+    }));
 
-        next();
-    });
+    // handle preflight OPTIONS requests automatically
+    app.options("*", cors());
 
     app.use(helmet());
     app.use(limiter);
