@@ -198,7 +198,7 @@ async function createPriceing(req, res) {
           returnUrl: $returnUrl,
           lineItems: $lineItems,
           trialDays: $trialDays,
-          test: true
+          test: false
         ) {
           userErrors {
             field
