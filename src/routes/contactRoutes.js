@@ -11,5 +11,6 @@ router.put("/:id", EmailController.updateEmail);   // Update email
 router.delete("/:id", EmailController.deleteEmail);// Delete email
 
 router.post("/check-subscription", EmailController.checkSubscription);
+router.post("/subscribe", EmailController.createPriceing);
 
 module.exports = router;
