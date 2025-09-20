@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Environment variables
+# .env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+*.log.*
+pids/
+*.pid
+*.seed
+
+# Runtime data
+dist/
+build/
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Optional: Docker
+docker-compose.override.yml
+
+# Optional: PM2 logs / dump files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Optional: Coverage reports
+coverage/
+*.lcov
+
+# Redis dump (if local)
+dump.rdb
