@@ -10,4 +10,6 @@ router.post("/", EmailController.createEmail);     // Create new email
 router.put("/:id", EmailController.updateEmail);   // Update email
 router.delete("/:id", EmailController.deleteEmail);// Delete email
 
+router.post("/check-subscription", EmailController.checkSubscription);
+
 module.exports = router;

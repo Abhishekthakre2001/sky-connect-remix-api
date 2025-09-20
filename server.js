@@ -44,7 +44,7 @@ if (cluster.isMaster) {
     app.use("/api/pricing", pricingRoutes);
     app.use("/api/mailtemplate", mailtemplateRoutes);
     app.use("/api/mail", mailRoutes);
-    // app.use("/api", contactRoutes);
+    app.use("/api", contactRoutes);
   
 
 

@@ -96,10 +96,72 @@ const deleteEmail = async (req, res, next) => {
   }
 };
 
+async function checkSubscription(req, res) {
+  const { shop, accessToken } = req.body;
+
+  console.log("Check subscription payload:", req.body);
+
+  if (!shop || !accessToken) {
+    return res.status(400).json({ error: "Missing required fields: shop or accessToken" });
+  }
+
+  try {
+    const query = `
+      query {
+        currentAppInstallation {
+          activeSubscriptions {
+            id
+            name
+            status
+          }
+        }
+      }`;
+
+    const response = await axios.post(
+      `https://${shop}/admin/api/2023-04/graphql.json`,
+      { query },
+      {
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const { data } = response;
+    console.log("Full response data:", data);
+
+    if (data.errors) {
+      return res
+        .status(400)
+        .json({ error: "Failed to fetch subscriptions", details: data.errors });
+    }
+
+    const activeSubscriptions = data.data.currentAppInstallation?.activeSubscriptions;
+
+    if (activeSubscriptions && activeSubscriptions.length > 0) {
+      return res.json({
+        hasSubscription: true,
+        subscriptions: activeSubscriptions,
+      });
+    } else {
+      return res.json({
+        hasSubscription: false,
+        subscriptions: [],
+      });
+    }
+  } catch (error) {
+    console.error("Error checking subscription:", error.message);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
 module.exports = {
   getEmails,
   getEmail,
   createEmail,
   updateEmail,
   deleteEmail,
+  checkSubscription
 };
