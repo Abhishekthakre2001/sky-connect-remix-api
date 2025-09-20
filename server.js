@@ -18,13 +18,13 @@ if (cluster.isMaster) {
     const numCPUs = os.cpus().length;
     console.log(`🟢 Master ${process.pid} is running`);
     console.log(`⚡ Forking ${numCPUs} workers...`);
-    for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
-    }
+    for (let i = 0; i < numCPUs; i++) cluster.fork();
+
     cluster.on("exit", (worker, code, signal) => {
         console.error(`❌ Worker ${worker.process.pid} died. Restarting...`);
         cluster.fork();
     });
+
 } else {
 
     // ✅ Test route
@@ -41,12 +41,11 @@ if (cluster.isMaster) {
     ];
 
     app.use(cors({
-        origin: function (origin, callback) {
+        origin: function(origin, callback) {
             // allow requests with no origin like Postman
             if (!origin) return callback(null, true);
             if (allowedOrigins.indexOf(origin) === -1) {
-                const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-                return callback(new Error(msg), false);
+                return callback(new Error("Not allowed by CORS"), false);
             }
             return callback(null, true);
         },
@@ -54,9 +53,6 @@ if (cluster.isMaster) {
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true
     }));
-
-    // handle preflight OPTIONS requests automatically
-    app.options("*", cors());
 
     app.use(helmet());
     app.use(limiter);
@@ -74,6 +70,6 @@ if (cluster.isMaster) {
 
     // ✅ Start Server
     app.listen(PORT, () => {
-        console.log(`✅ Server running on http://localhost:${PORT} `);
+        console.log(`✅ Server running on http://localhost:${PORT}`);
     });
 }
