@@ -33,6 +33,10 @@ if (cluster.isMaster) {
 
 } else {
 
+    app.get("/test", (req, res) => {
+        res.json({ status: "ok", message: "SkyConnect API is running 🚀" });
+    });
+
     // ✅ Global middlewares
     app.use(helmet());             // Security headers
     app.use(corsConfig);           // CORS policy
