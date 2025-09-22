@@ -1,8 +1,8 @@
 const EmailModel = require("../models/emailModel");
 
 // Get all emails
-async function getAllEmails() {
-  return await EmailModel.getAll();
+async function getAllEmails(req) {
+  return await EmailModel.getAll(req);
 }
 
 // Get email by ID
