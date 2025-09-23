@@ -1,4 +1,13 @@
 const nodemailer = require("nodemailer");
+const mysql = require("mysql2/promise");
+
+// MySQL Connection Pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST ,
+  user:process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+});
 
 exports.sendEmail = async (req, res) => {
   const {
@@ -36,41 +45,55 @@ exports.sendEmail = async (req, res) => {
 
   // HTML Template
   const emailHtml = `
-  <html>
-    <body style="font-family: Arial, sans-serif; background:#f9f9f9;">
-      <div style="max-width:600px; margin:50px auto; background:#fff; border-radius:10px; border:1px solid #ddd;">
-        <div style="background:${color || "black"}; padding:15px; border-radius:10px 10px 0 0; text-align:center;">
-          <img src="${logo}" alt="logo" style="width:50px;height:50px;border-radius:50%;display:${logoborder};"/>
+    <html>
+      <body style="font-family: Arial, sans-serif; background:#f9f9f9;">
+        <div style="max-width:600px; margin:50px auto; background:#fff; border-radius:10px; border:1px solid #ddd;">
+          <div style="background:${color || "black"}; padding:15px; border-radius:10px 10px 0 0; text-align:center;">
+            <img src="${logo}" alt="logo" style="width:50px;height:50px;border-radius:50%;display:${logoborder};"/>
+          </div>
+          <h2 style="text-align:center; margin:20px; display:${nameMail ? "block" : "none"};">${nameMail}</h2>
+          <div style="text-align:center; display:${imgBanner}; margin:20px;">
+            <img src="${banner}" alt="banner" style="width:100%;max-width:400px;border-radius:8px;"/>
+          </div>
+          <div style="text-align:center; display:${buttonVisible}; margin:20px;">
+            <a href="${buttonRedirect || "#"}" style="background:#ff6f61;color:#fff;padding:12px 25px;border-radius:25px;text-decoration:none;">
+              ${btnName}
+            </a>
+          </div>
+          <div style="padding:20px; font-size:16px; color:#333;">${text}</div>
+          <p style="padding:20px; font-size:14px; color:#555;">
+            Best Regards,<br><b style="color:#007bff">${owner}</b>
+          </p>
         </div>
-        <h2 style="text-align:center; margin:20px; display:${nameMail ? "block" : "none"};">${nameMail}</h2>
-        <div style="text-align:center; display:${imgBanner}; margin:20px;">
-          <img src="${banner}" alt="banner" style="width:100%;max-width:400px;border-radius:8px;"/>
-        </div>
-        <div style="text-align:center; display:${buttonVisible}; margin:20px;">
-          <a href="${buttonRedirect || "#"}" style="background:#ff6f61;color:#fff;padding:12px 25px;border-radius:25px;text-decoration:none;">
-            ${btnName}
-          </a>
-        </div>
-        <div style="padding:20px; font-size:16px; color:#333;">${text}</div>
-        <p style="padding:20px; font-size:14px; color:#555;">
-          Best Regards,<br><b style="color:#007bff">${owner}</b>
-        </p>
-      </div>
-    </body>
-  </html>
+      </body>
+    </html>
   `;
 
   try {
     const results = [];
+    let deliveryStatus = "sent";
+
     for (const recipient of to) {
-      const info = await transporter.sendMail({
-        from: username,
-        to: recipient,
-        subject,
-        html: emailHtml,
-      });
-      results.push({ recipient, messageId: info.messageId });
+      try {
+        const info = await transporter.sendMail({
+          from: username,
+          to: recipient,
+          subject,
+          html: emailHtml,
+        });
+        results.push({ recipient, messageId: info.messageId });
+      } catch (err) {
+        deliveryStatus = "partial"; // if any email fails
+        results.push({ recipient, error: err.message });
+      }
     }
+
+    // Store in mail_history table
+    const receivers = to.join(",");
+    await pool.query(
+      "INSERT INTO mail_history (receivers, delivery_status) VALUES (?, ?)",
+      [receivers, deliveryStatus]
+    );
 
     res.status(200).json({
       message: "Bulk email sent",
@@ -79,6 +102,13 @@ exports.sendEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    // Save failed attempt in DB
+    const receivers = to.join(",");
+    await pool.query(
+      "INSERT INTO mail_history (receivers, delivery_status) VALUES (?, ?)",
+      [receivers, "failed"]
+    );
+
     res.status(500).json({ message: "Failed to send emails", error: error.message });
   }
 };
