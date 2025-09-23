@@ -1,9 +1,10 @@
 const EmailTemplate = require("../models/emailTemplateModel");
 
 async function getallEmailTemplates(req, res, next) {
-  console.log("in controller");
+ console.log("in controller", req.query);  // use query params
+ const shopId = req.query.shop_id; 
   try {
-    const [rows] = await EmailTemplate.getAll();
+    const [rows] = await EmailTemplate.getAll(shopId);
     res.json(rows);
   } catch (err) {
     next(err);

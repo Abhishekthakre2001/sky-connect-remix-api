@@ -3,8 +3,8 @@ const mysql = require("mysql2/promise");
 
 // MySQL Connection Pool
 const pool = mysql.createPool({
-  host: process.env.DB_HOST ,
-  user:process.env.DB_USER,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
 });
@@ -23,6 +23,7 @@ exports.sendEmail = async (req, res) => {
     btnName,
     color,
     btnUrl,
+    shop_id
   } = req.body;
 
   // ===== Validations =====
@@ -91,8 +92,8 @@ exports.sendEmail = async (req, res) => {
     // Store in mail_history table
     const receivers = to.join(",");
     await pool.query(
-      "INSERT INTO mail_history (receivers, delivery_status) VALUES (?, ?)",
-      [receivers, deliveryStatus]
+      "INSERT INTO mail_history (receivers, delivery_status, shop_id) VALUES (?, ?, ?)",
+      [receivers, deliveryStatus, shop_id]
     );
 
     res.status(200).json({

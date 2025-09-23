@@ -42,13 +42,13 @@ if (cluster.isMaster) {
     app.use(morgan("combined"));   // Request logging
 
     // ✅ Routes
-     app.use("/api/history", historyRoutes);
+    app.use("/api/history", historyRoutes);
     app.use("/api/pricing", pricingRoutes);
     app.use("/api/mailtemplate", mailtemplateRoutes);
     app.use("/api/mail", mailRoutes);
     app.use("/api", contactRoutes);
-   
-  
+
+
 
 
 

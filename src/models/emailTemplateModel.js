@@ -1,8 +1,8 @@
 const db = require("../config/db"); // mysql2/promise pool
 
-  function getAll() {
-    console.log("in model");
-    return db.query("SELECT * FROM email_template");
+  function getAll(shopId) {
+    console.log("in model",shopId);
+     return db.query("SELECT * FROM email_template WHERE shop_id = ?", [shopId]);
   }
 
 function getById(id) {
@@ -10,10 +10,11 @@ function getById(id) {
 }
 
 function create(data) {
+  console.log("data",data)
   const sql = `
     INSERT INTO email_template 
-    (Name, Subject, Email_body, Button_text, Shop_name, Logo_URL, Banner_URL, Header_color) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (Name, Subject, Email_body, Button_text, Shop_name, Logo_URL, Banner_URL, Header_color, shop_id) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   const values = [
     data.Name,
@@ -24,6 +25,7 @@ function create(data) {
     data.Logo_URL,
     data.Banner_URL,
     data.Header_color,
+    data.shop_id,
   ];
   return db.query(sql, values);
 }
