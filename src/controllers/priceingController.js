@@ -17,7 +17,7 @@ async function createPriceing(req, res) {
   try {
     // Construct shop domain
     const shopDomain = `${storename}`;
-    const returnUrl = `https://${shopDomain}/admin/apps/testapp-3357/app/contact`;
+    const returnUrl = `https://${shopDomain}/admin/apps/skyconnect/app/contact`;
 
     // ✅ Define pricing details
     const appRecurringPricingDetails = {
@@ -43,7 +43,7 @@ async function createPriceing(req, res) {
           returnUrl: $returnUrl,
           lineItems: $lineItems,
           trialDays: $trialDays,
-          test: true
+          test: false
         ) {
           userErrors {
             field
